@@ -1,0 +1,95 @@
+<game_config>
+	<game_key>space_engineers_torch_win64</game_key>
+	<protocol>lgsl</protocol>
+	<lgsl_query_name>source</lgsl_query_name>
+	<installer>steamcmd</installer>
+	<game_name>Space Engineers - Torch</game_name>
+	<server_exec_name>Torch.Server.exe</server_exec_name>
+	<cli_template></cli_template>
+	<cli_params>
+		<cli_param id="BASE_PATH" cli_string="-path" options="sq" />
+	</cli_params>
+	<console_log>Logs/Torch.log</console_log>
+	<max_user_amount>32</max_user_amount>
+	<mods>
+    <mod key="default">
+      <name>None</name>
+    </mod>
+  </mods>
+	<replace_texts>
+		<text key="home_name">
+			<default>ServerName</default>
+			<filepath>SpaceEngineers-Dedicated.cfg</filepath>
+			<options>tags</options>
+		</text>
+		<text key="ip">
+			<default>IP</default>
+			<filepath>SpaceEngineers-Dedicated.cfg</filepath>
+			<options>tags</options>
+		</text>
+		<text key="port">
+			<default>ServerPort</default>
+			<filepath>SpaceEngineers-Dedicated.cfg</filepath>
+			<options>tags</options>
+		</text>
+		<text key="max_players">
+			<default>MaxPlayers</default>
+			<filepath>SpaceEngineers-Dedicated.cfg</filepath>
+			<options>tags</options>
+		</text>
+	</replace_texts>
+    <post_install>
+BASE="https://torchapi.net/download/Torch"
+
+wget $BASE -Otmp
+
+# Assuming the version schema isn't changed or the url above isn't moved, this will always work.
+LATEST_VERSION=$(grep -Po '(?&lt;=href=")[^"]*' tmp | grep "torch-server" | head -1)
+
+wget "${LATEST_VERSION}"
+
+unzip torch-server.zip -d $PWD/server-data
+
+if [ ! -e "$PWD/Torch.cfg" ]; then
+  cat > $PWD/Torch.cfg &lt;&lt;END
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;TorchConfig xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+  &lt;InstanceName&gt;TorchInstance&lt;/InstanceName&gt;
+  &lt;InstancePath&gt;$PWD&lt;/InstancePath&gt;
+  &lt;Autostart&gt;true&lt;/Autostart&gt;
+  &lt;RestartOnCrash&gt;false&lt;/RestartOnCrash&gt;
+  &lt;NoGui&gt;true&lt;/NoGui&gt;
+  &lt;GetTorchUpdates&gt;false&lt;/GetTorchUpdates&gt;
+  &lt;GetPluginUpdates&gt;false&lt;/GetPluginUpdates&gt;
+  &lt;TickTimeout&gt;60&lt;/TickTimeout&gt;
+  &lt;Plugins&gt;
+  &lt;/Plugins&gt;
+  &lt;ChatName&gt;Server&lt;/ChatName&gt;
+  &lt;ChatColor&gt;Red&lt;/ChatColor&gt;
+  &lt;EnableWhitelist&gt;false&lt;/EnableWhitelist&gt;
+  &lt;Whitelist /&gt;
+  &lt;WindowSize&gt;
+    &lt;X&gt;800&lt;/X&gt;
+    &lt;Y&gt;600&lt;/Y&gt;
+  &lt;/WindowSize&gt;
+  &lt;WindowPosition&gt;
+    &lt;X&gt;0&lt;/X&gt;
+    &lt;Y&gt;0&lt;/Y&gt;
+  &lt;/WindowPosition&gt;
+  &lt;LastUsedTheme&gt;Torch Theme&lt;/LastUsedTheme&gt;
+  &lt;IndependentConsole&gt;false&lt;/IndependentConsole&gt;
+&lt;/TorchConfig&gt;
+END
+fi
+
+cp "$PWD/Torch.cfg" "$PWD/server-data/Torch.cfg"
+
+cp -a "$PWD/server-data/"* "$PWD"
+
+rm tmp torch-server.zip
+rm -rf $PWD/server-data
+  </post_install>
+  <configuration_files>
+    <file description="Torch Server Configuration">Torch.cfg</file>
+  </configuration_files>
+</game_config>
