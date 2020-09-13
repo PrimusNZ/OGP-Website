@@ -1,0 +1,41 @@
+<game_config>
+  <game_key>farmingsimulator19_win64</game_key>
+  <protocol>lgsl</protocol>
+  <lgsl_query_name>farmsim</lgsl_query_name>
+  <installer>steamcmd</installer>
+  <game_name>Farming Simulator 19</game_name>
+  <server_exec_name>dedicatedServer.exe</server_exec_name>
+  <cli_template></cli_template>
+  <console_log></console_log>
+  <max_user_amount>16</max_user_amount>
+  <mods>
+    <mod key="fs19">
+      <name>Farming Simulator 19</name>
+      <installer_name>787860</installer_name>
+      <installer_login>anonymous</installer_login>
+    </mod>
+  </mods>
+  <replace_texts>
+    <text key="port">
+      <default>property</default>
+      <var>ServerPort</var>
+      <filepath>dedicatedServer.xml</filepath>
+      <options>tagValueByName</options>
+    </text>
+  </replace_texts>
+  <custom_fields>
+    <field key="Control Panel Enabled" type="select">
+      <option value="false">False</option>
+      <option value="true">True</option>
+      <default>property</default>
+      <default_value>false</default_value>
+      <var>ControlPanelEnabled</var>
+      <filepath>serverconfig.xml</filepath>
+      <options>tagValueByName</options>
+      <desc>Enable/Disable the web control panel.</desc>
+    </field>
+  </custom_fields>
+  <configuration_files>
+    <file description="Server Configurations">dedicatedServer.xml</file>
+  </configuration_files>
+</game_config>
