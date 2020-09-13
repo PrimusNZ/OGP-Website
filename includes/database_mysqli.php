@@ -1362,7 +1362,7 @@ class OGPDatabaseMySQL extends OGPDatabase
 
 	/// \brief Get remote server IP's
 	public function getRemoteServerIPs($server_id){
-		$query = sprintf("SELECT ip_id,ip FROM `%sremote_server_ips` WHERE remote_server_id = %d;",
+		$query = sprintf("SELECT ip_id,ip FROM `%sremote_server_ips` WHERE remote_server_id = %d ORDER BY ip ASC;", // Sort it by default
 			$this->table_prefix,
 			$this->realEscapeSingle($server_id));
 		return $this->listQuery($query);
@@ -3792,7 +3792,7 @@ class OGPDatabaseMySQL extends OGPDatabase
 									{
 										require_once("modules/gamemanager/home_handling_functions.php");
 										require_once("modules/config_games/server_config_parser.php");
-										exec_operation('stop', $home_id, FALSE, $address['ip'], $address['port']);
+										exec_operation('stop', $home_id, FALSE, $address['ip'], $address['port'], true);
 									}
 								}
 							}

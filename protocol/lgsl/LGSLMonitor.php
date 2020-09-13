@@ -33,6 +33,11 @@ if($num_of_servers < $numberservers_to_skip_query)
 		$c_port = $get_q_and_s['0'];
 		//query port
 		$q_port = $get_q_and_s['1'];
+		
+		// Get any query port overrides (if any)
+		require_once("includes/functions.php");
+		$q_port = getQueryPortOverridesForGame((string)$server_xml->lgsl_query_name, $internal_query_ip, $port, $q_port);
+		
 		//software port
 		$s_port = $get_q_and_s['2'];
 		$data = lgsl_query_live((string)$server_xml->lgsl_query_name, $internal_query_ip, $c_port, $q_port, $s_port, "sp");

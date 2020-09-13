@@ -132,6 +132,8 @@ define('OGP_LANG_default_game_server_home_path_prefix', "Prefixo do directório 
 define('OGP_LANG_default_game_server_home_path_prefix_info', "Digite um prefixo de caminho para onde você deseja que as casas do servidor do jogo sejam criadas por padrão. Você pode usar \"{USERNAME}\" no caminho que será substituído pelo nome de usuário Do seu Painel, o servidor do jogo está sendo atribuído a.  Você pode usar \"{GAMEKEY}\" no caminho que será substituído por um nome de minúscula.  Você pode usar \"{SKIPID}\" em qualquer lugar no caminho para pular anexando o ID inicial ao caminho.  Exemplo: /ogp/games/{USERNAME}/{GAMEKEY}{SKIPID} irá se tornar /ogp/games/username/arkse/.  Exemplo2:  /ogp/games ira se tornar /ogp/games/2 onde 2 é a identificação dos servidores do jogo.");
 define('OGP_LANG_use_authorized_hosts', "Limitar a API de hosts autorizados definidos");
 define('OGP_LANG_use_authorized_hosts_info', "Ative esta configuração para permitir somente chamadas de API de endereços IP predefinidos e aprovados.&nbsp; Os endereços aprovados podem ser definidos nesta página quando a configuração estiver ativada.&nbsp; Se essa configuração estiver desabilitada, um usuário usando uma chave válida terá acesso à API de qualquer endereço IP.&nbsp; Os usuários que usam uma chave válida poderão usar a API para gerenciar qualquer servidor de jogo que eles tenham permissão para administrar.");
+define('OGP_LANG_allow_setting_cpu_affinity', "Allow Setting CPU Core Assignment for Game Servers");
+define('OGP_LANG_allow_setting_cpu_affinity_info', "If enabled, the admin creating a game home will be shown CPU affinity (core assignment) options for the game server.");
 define('OGP_LANG_setup_api_authorized_hosts', "Define o API das hosts autorizadas");
 define('OGP_LANG_autohorized_hosts', "Hosts Autorizadas");
 define('OGP_LANG_add', "Adicionar");
@@ -141,6 +143,6 @@ define('OGP_LANG_trusted_host_or_proxy_addresses_or_cidr', "Hosts Confiáveis ou
 define('OGP_LANG_trusted_forwarded_ip_addresses_or_cidr', "IPs Confiaveis de Encaminhamentos (IPv4/IPv6 Endereços ou *Classless Inter-Domain Routing*)");
 define('OGP_LANG_reset_game_server_order', "Reset Game Server Ordering");
 define('OGP_LANG_reset_game_server_order_info', "Resets game server ordering back to the default of using the server ID");
-
-
+define('OGP_LANG_regex_invalid_file_name_chars', "Invalid File Name Characters Regex");
+define('OGP_LANG_regex_invalid_file_name_chars_info', "Change this regex pattern if you want to allow a different set of characters in file names.");
 ?>

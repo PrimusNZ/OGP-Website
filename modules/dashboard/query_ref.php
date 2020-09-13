@@ -22,7 +22,7 @@
  *
  */
 
-function print_player_list($player_list,$players,$playersmax,$gamename)
+function print_player_list_ogp_dashboard($player_list,$players,$playersmax,$gamename)
 {
     $data = "<center><table class='currently-online' >".
 			"<tr><td style='text-align:left;'>".
@@ -73,6 +73,7 @@ function exec_ogp_module()
 	}
 	else if ($server_xml->protocol == "lgsl")
 	{
+		require('protocol/lgsl/functions.php');
 		require('protocol/lgsl/LGSLMonitor.php');
 	}
 	else if ($server_xml->protocol == "teamspeak3")
@@ -96,7 +97,7 @@ function exec_ogp_module()
 		$_SESSION[$server_key]['playersmax'] = $playersmax;
 		if ( $players >= 1 )
 		{
-			$_SESSION[$server_key]['online_players'] = print_player_list($playersList,$players,$playersmax,$server_home['game_name']);
+			$_SESSION[$server_key]['online_players'] = print_player_list_ogp_dashboard($playersList,$players,$playersmax,$server_home['game_name']);
 		}
 		elseif(isset($_SESSION[$server_key]['online_players']))
 			unset($_SESSION[$server_key]['online_players']);

@@ -132,6 +132,8 @@ define('OGP_LANG_default_game_server_home_path_prefix', "Dossier par défaut des
 define('OGP_LANG_default_game_server_home_path_prefix_info', "Entrer un préfixe de chemin où vous souhaitez que les dossiers des serveurs de jeu soient créés.  Vous pouvez utiliser \"{USERNAME}\" dans le chemin qui sera ensuite remplacé par le nom d&apos;utilisateur OGP auquel le serveur est assigné. Vous pouvez utiliser \"{GAMEKEY}\" dans le chemin qui sera ensuite remplacé par un nom de jeu en minuscule.  Vous pouvez utiliser \"{SKIPID}\" n&apos;importe où dans le chemin pour empêcher d&apos;apposer l&apos;ID du serveur de jeu au chemin.  Exemple: /ogp/games/{USERNAME}/{GAMEKEY}{SKIPID} deviendra /ogp/games/username/arkse/.  Exemple 2:  /ogp/games deviendra /ogp/games/1 où 1 est l&apos;ID du serveur de jeu.");
 define('OGP_LANG_use_authorized_hosts', "Limiter l'API aux Hôtes Autorisés");
 define('OGP_LANG_use_authorized_hosts_info', "Activer ce paramètre pour seulement autoriser les appels à l&apos;API par les IP des hôtes approuvés.&nbsp; Les adresses approuvées peuvent être définies sur cette page une fois le paramètre activé.&nbsp; Si ce paramètre est désactivé, un utilisateur possédant un clé valide d&apos;API aura accès à l&apos;API à partir de n&apos;importe quelle adresse IP.&nbsp; Des utilisateurs possédant une clé valide pourra utiliser l&apos;API pourra gérer tous les serveurs de jeux pour qu&apos;ils sont autorisés à administrer.");
+define('OGP_LANG_allow_setting_cpu_affinity', "Autoriser l&apos;Affinité des Cœurs de CPU pour les Serveurs de Jeu");
+define('OGP_LANG_allow_setting_cpu_affinity_info', "Si cette option est activé, l&apos;administrateur créant un serveur de jeu verra des options pour l&apos;affinité des CPU (assignement des cœurs) pour le serveur de jeu.");
 define('OGP_LANG_setup_api_authorized_hosts', "Paramétrer les hôtes autorisés pour l'API");
 define('OGP_LANG_autohorized_hosts', "Hôtes autorisés");
 define('OGP_LANG_add', "Ajouter");
@@ -141,6 +143,6 @@ define('OGP_LANG_trusted_host_or_proxy_addresses_or_cidr', "Hôtes de confiance 
 define('OGP_LANG_trusted_forwarded_ip_addresses_or_cidr', "IPs de confiance transférées (Adresses IPv4/IPv6 ou CIDR)");
 define('OGP_LANG_reset_game_server_order', "Réinitialiser l'ordre des serveurs");
 define('OGP_LANG_reset_game_server_order_info', "Remettre l&apos;ordre des serveurs par défaut en utilisant l&apos;ID du serveur");
-
-
+define('OGP_LANG_regex_invalid_file_name_chars', "Regex pour les Caractères de Noms de Fichiers Invalides");
+define('OGP_LANG_regex_invalid_file_name_chars_info', "Modifier ce modèle d&apos;expression régulière si vous souhaitez autoriser un autre jeu de caractères dans les noms de fichiers.");
 ?>

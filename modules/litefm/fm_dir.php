@@ -228,7 +228,7 @@ function exec_ogp_module()
 				if(isset($_SESSION['fm_files_'.$home_id][$item]))
 				{
 					$item_path = clean_path( $path . "/" . $_SESSION['fm_files_'.$home_id][$item] );
-					$new_item = stripslashes($_POST['values'][$i]);
+					$new_item = removeInvalidFileNameCharacters(stripslashes($_POST['values'][$i]));
 					$new_item_path = clean_path( $path . "/" . $new_item );
 					if ($item_path != $new_item_path)
 					{
@@ -324,7 +324,7 @@ function exec_ogp_module()
 	// Create file
 	elseif( isset( $_POST['create_file'] ) and $fo['create_file'] == "1" )
 	{
-		$file_name = stripslashes($_POST['file_name']);
+		$file_name = removeInvalidFileNameCharacters(stripslashes($_POST['file_name']));
 		$destination = clean_path( $path . "/" . $file_name);
 		$remote->shell_action('touch', $destination);
 		$db->logger( get_lang("create_file") . ": $destination" );
@@ -461,6 +461,8 @@ function exec_ogp_module()
 					$dirlist['directorys'] = array_orderby($dirlist['directorys'], 'filename', SORT_ASC);
 					foreach($dirlist['directorys'] as $directory)
 					{
+						$directory['filename'] = removeInvalidFileNameCharacters($directory['filename']);
+						
 						echo "<tr>\n".
 							 "<td>".
 							 "<input type=checkbox name='folder' data-item='$i' value=\"" . str_replace('"', "&quot;", $directory['filename']) . "\" class='item' />\n".
@@ -483,6 +485,8 @@ function exec_ogp_module()
 					$dirlist['files'] = array_orderby($dirlist['files'], 'filename', SORT_ASC);
 					foreach($dirlist['files'] as $file)
 					{
+						$file['filename'] = removeInvalidFileNameCharacters($file['filename']);
+						
 						if( $os == "linux" )
 						{
 							if($isAdmin){
@@ -526,6 +530,8 @@ function exec_ogp_module()
 					$dirlist['binarys'] = array_orderby($dirlist['binarys'], 'filename', SORT_ASC);
 					foreach($dirlist['binarys'] as $binary)
 					{
+						$binary['filename'] = removeInvalidFileNameCharacters($binary['filename']);
+						
 						if( $os == "linux" )
 						{
 							if($isAdmin){

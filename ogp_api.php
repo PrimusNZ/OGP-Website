@@ -18,8 +18,8 @@ ogp_api.php?server/edit_ip					(POST/GET {token}{remote_server_id}{old_ip}{new_i
 ______________ Game Servers
 ogp_api.php?user_games/list_games			(POST/GET {token}{system(windows|linux)}{architecture(32|64)})
 ogp_api.php?user_games/list_servers			(POST/GET {token})
-ogp_api.php?user_games/create 				(POST/GET {token}{remote_server_id}{server_name}{home_cfg_id}{mod_cfg_id}{ip}{port}{control_password}{enable_ftp}{ftp_password}{slots}{affinity}{nice})
-ogp_api.php?user_games/clone 				(POST/GET {token}{origin_home_id}{new_server_name}{new_ip}{new_port}{control_password}{enable_ftp}{ftp_password}{slots}{affinity}{nice})
+ogp_api.php?user_games/create 				(POST/GET {token}{remote_server_id}{server_name}{home_cfg_id}{mod_cfg_id}{ip}{port}{control_password}{enable_ftp}{ftp_password}{slots}{affinity}{nice}{assign_to_username}{custom_user_login_homepath}) // {custom_user_login_homepath} is only used when a default_game_server_home_path_prefix setting is defined and used
+ogp_api.php?user_games/clone 				(POST/GET {token}{origin_home_id}{new_server_name}{new_ip}{new_port}{control_password}{enable_ftp}{ftp_password}{slots}{affinity}{nice}{assign_to_username}{custom_user_login_homepath}) // {custom_user_login_homepath} is only used when a default_game_server_home_path_prefix setting is defined and used
 ogp_api.php?user_games/set_expiration 		(POST/GET {token}{home_id}{timestamp})
 
 ______________ Users
@@ -51,6 +51,9 @@ ogp_api.php?addonsmanager/install			(POST/GET {token}{ip}{port}{mod_key}{addon_i
 
 ______________ Steam Workshop
 ogp_api.php?steam_workshop/install 			(POST/GET {token}{ip}{port}{mods_list})
+* 
+ ______________ Panel Setting
+ogp_api.php?setting/get 			(POST/GET {token}{setting_name})
 
 */
 $main_request = key($_GET);
@@ -58,6 +61,16 @@ $request = explode('/', $main_request);
 unset($_GET["$main_request"]);
 if(!empty($_GET))
 	$_POST = array_merge($_POST,$_GET);
+	
+// Allow json requests to the API as well
+$jsonData = file_get_contents('php://input');
+if(!empty($jsonData)){
+	$jsonArr = json_decode($jsonData, true);
+}
+if(isset($jsonArr) && is_array($jsonArr) && !empty($jsonArr)){
+	$_POST = array_merge($_POST, $jsonArr);
+}
+	
 //Retirieve the function name
 $function = 'api_'.$request[0];
 //Remove the main function from the request
@@ -88,7 +101,7 @@ if(function_exists($function))
 	$settings = $db->getSettings();
 	
 	if(!is_authorized())
-		outputJSON(array("status" => '401', "message" => 'Unauthorized host'));
+		output(array("status" => '401', "message" => 'Unauthorized host'), $function);
 	
 	$db->checkApiTable();
 	$logged_in = false;
@@ -109,7 +122,7 @@ if(function_exists($function))
 		}
 		else
 		{
-			outputJSON(array("status" => "300", "message" => "No token supplied"));
+			output(array("status" => "300", "message" => "No token supplied"), $function);
 		}
 	}
 	
@@ -118,39 +131,57 @@ if(function_exists($function))
 		//call the function and output the returned data as json
 		$func_req = str_replace('api_','',$function)."/".$request[0];
 		if($main_request == "all")
-			outputJSON(array("status" => "400", "message" => "BAD REQUEST"));
+			output(array("status" => "400", "message" => "BAD REQUEST"), $function);
 		else
 			$function_args = get_function_args("$func_req");
 		
 		if(!$function_args)
-			outputJSON(array("status" => "400", "message" => "BAD REQUEST"));
+			output(array("status" => "400", "message" => "BAD REQUEST - CANT FIND FUNCTION ARGS"), $function);
 		elseif(!(($func_req == "token/test" and isset($request[1])) OR ($func_req == "token/create" and isset($request[1]) and isset($request[2]))))
 		{
 			foreach($function_args as $arg => $mandatory)
 			{
 				if($mandatory and !isset($_POST["$arg"]))
 				{
-					outputJSON(array("status" => "400", "message" => "BAD REQUEST", "fields_supplied" => $_POST, "fields_required" => $function_args));
+					output(array("status" => "400", "message" => "BAD REQUEST - MISSING REQUIRED ARGS", "fields_supplied" => $_POST, "fields_required" => $function_args), $function);
 					break;
 				}
 			}
 		}
-		outputJSON($function());
+		output($function(), $function);
 	}
 	else
 	{
-		outputJSON(array("status" => "301", "message" => "Invalid Token"));
+		output(array("status" => "301", "message" => "Invalid Token"), $function);
 	}
 }
 else
 {
-	outputJSON(array("status" => "400", "message" => "BAD REQUEST"));
+	output(array("status" => "400", "message" => "BAD REQUEST"), $function);
+}
+
+function output($result, $function){
+	if($function == "api_setting"){
+		if(is_array($result) && array_key_exists("status", $result) && $result["status"] != 200){
+			outputPlainText("-1");
+		}else{
+			outputPlainText($result);
+		}
+	}else{
+		outputJSON($result);
+	}
 }
 
 function outputJSON($result){	
 	// Send JSON output
 	header('Content-Type: application/json');
 	echo json_encode($result);
+	exit();
+}
+
+function outputPlainText($result){
+	header("Content-Type: text/plain");
+	echo $result;
 	exit();
 }
 
@@ -408,6 +439,20 @@ function api_user_games()
 		$affinity = $_POST['affinity'];
 		$nice = $_POST['nice'];
 		
+		$homeForUser = $user_info['users_login'];
+		if(array_key_exists('custom_user_login_homepath', $_POST) && !empty($_POST['custom_user_login_homepath'])){
+			$homeForUser = $_POST['custom_user_login_homepath'];
+		}
+		
+		$assignGameServerToUserId = $user_info['user_id'];
+		if(array_key_exists('assign_to_username', $_POST) && !empty($_POST['assign_to_username'])){
+			$assignToAccountUser = $_POST['assign_to_username'];
+			$userInfo = $db->getUser($assignToAccountUser);
+			if($userInfo){
+				$assignGameServerToUserId = $userInfo['user_id'];
+			}
+		}
+		
 		$remote_server = $db->getRemoteServer($remote_server_id);
 		if($remote_server === FALSE)
 			return array("status" => '304', "message" => "Remote Server ID#$remote_server_id does not exists");
@@ -453,7 +498,7 @@ function api_user_games()
 		if(hasValue($settings["default_game_server_home_path_prefix"]))
 		{
 			// Replace some user supported variables with actual value.
-			$game_path = str_replace("{USERNAME}", $user_info['users_login'], $settings["default_game_server_home_path_prefix"]);
+			$game_path = str_replace("{USERNAME}", $homeForUser, $settings["default_game_server_home_path_prefix"]);
 			if(stripos($game_path, "{SKIPID}") !== false){
 				$game_path = str_replace("{SKIPID}", "",  $game_path);
 				$skipId = true;
@@ -469,7 +514,7 @@ function api_user_games()
 		
 		$game_path = clean_path($game_path); // Clean it
 		
-		$home_id = $db->addGameHome($remote_server_id, $user_info['user_id'], $home_cfg_id, $game_path, $server_name, $control_password, $ftp_password, $skipId);
+		$home_id = $db->addGameHome($remote_server_id, $assignGameServerToUserId, $home_cfg_id, $game_path, $server_name, $control_password, $ftp_password, $skipId);
 		if($home_id === FALSE)
 			return array("status" => '311', "message" => "Server could not be added to the database.");
 		
@@ -517,10 +562,24 @@ function api_user_games()
 		$slots = $_POST['slots'];
 		$affinity = $_POST['affinity'];
 		$nice = $_POST['nice'];
+		
+		$homeForUser = $user_info['users_login'];
+		if(array_key_exists('custom_user_login_homepath', $_POST) && !empty($_POST['custom_user_login_homepath'])){
+			$homeForUser = $_POST['custom_user_login_homepath'];
+		}
 				
 		$game_home = $db->getGameHome($home_id);
 		if($game_home === FALSE)
 			return array("status" => '315', "message" => "There is no game home with home_id #" . $home_id . ".");
+			
+		$assignGameServerToUserId = $game_home['user_id_main'];
+		if(array_key_exists('assign_to_username', $_POST) && !empty($_POST['assign_to_username'])){
+			$assignToAccountUser = $_POST['assign_to_username'];
+			$userInfo = $db->getUser($assignToAccountUser);
+			if($userInfo){
+				$assignGameServerToUserId = $userInfo['user_id'];
+			}
+		}
 		
 		$remote = new OGPRemoteLibrary($game_home['agent_ip'],$game_home['agent_port'],$game_home['encryption_key'],$game_home['timeout']);
 		$host_stat = $remote->status_chk();
@@ -540,7 +599,7 @@ function api_user_games()
 		if(hasValue($settings["default_game_server_home_path_prefix"]))
 		{
 			// Replace some user supported variables with actual value.
-			$game_path = str_replace("{USERNAME}", $user_info['users_login'], $settings["default_game_server_home_path_prefix"]);
+			$game_path = str_replace("{USERNAME}", $homeForUser, $settings["default_game_server_home_path_prefix"]);
 			if(stripos($game_path, "{SKIPID}") !== false){
 				$game_path = str_replace("{SKIPID}", "",  $game_path);
 				$skipId = true;
@@ -556,7 +615,7 @@ function api_user_games()
 		
 		$game_path = clean_path($game_path); // Clean it
 		
-		$clone_home_id = $db->addGameHome($game_home['remote_server_id'], $game_home['user_id_main'],
+		$clone_home_id = $db->addGameHome($game_home['remote_server_id'], $assignGameServerToUserId,
 			$game_home['home_cfg_id'], $game_path, $server_name, $control_password, $ftp_password, $skipId);
 		
 		if ($clone_home_id === FALSE)
@@ -1728,5 +1787,27 @@ function api_steam_workshop()
 	}
 		
 	return array("status" => $status, "message" => $message);
+}
+
+function api_setting()
+{
+	global $request, $db, $user_info, $settings;
+	
+	if($user_info['users_role'] != "admin"){
+		outputPlainText("-1");
+	}
+	
+	if($request[0] == "get")
+	{
+		$setting = $_POST['setting_name'];
+		if(array_key_exists($setting, $settings)){
+			$status = "200";
+			$message = $settings[$setting];
+			
+			outputPlainText($message);
+		}
+	}
+		
+	outputPlainText("-1");
 }
 ?>
